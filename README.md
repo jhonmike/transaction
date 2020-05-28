@@ -1,12 +1,12 @@
 # Projeto Transactions
 
-## Topicos Chave
+## Tópicos Chave
 
 - Conta com dados do cartão relacionado ao cliente
 - Cada transação fica salvo o evento
 - Tipos de transação (Compra a vista, compra parcelada, saque ou pagamento)
 - Estrutura da transação (Tipo, Valor e Data de criação)
-- Compras e saques tem valor negativo e pagamentos valor positivo
+- Compras e saques tem valor negativo e pagamentos tem o valor positivo
 
 ## Executando Local com Docker
 
@@ -26,7 +26,7 @@ Lembrando que os dados do banco postgres estão armazenados em um volume gerenci
 
 ## Executando Local sem Docker
 
-Necessario possuir o GoLang configurado em sua maquina.
+Necessário possuir o GoLang configurado em sua maquina e uma instância do postgres.
 
 ```sh
 go mod download
@@ -35,7 +35,7 @@ go run main.go
 
 ## Rodando os Testes
 
-Necessario possuir o GoLang configurado em sua maquina.
+Necessário possuir o GoLang configurado em sua máquina.
 
 ```sh
 go test -v ./...
