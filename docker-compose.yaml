@@ -3,6 +3,13 @@ version: '3'
 services:
   api:
     image: golang:1.14-alpine
+    environment:
+      PORT: "8080"
+      DB_HOST: "db"
+      DB_PORT: "5432"
+      DB_USER: "postgres"
+      DB_PASS: "postgres"
+      DB_BASE: "transaction"
     depends_on:
       - db
     ports:

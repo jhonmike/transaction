@@ -7,29 +7,33 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/jhonmike/transaction/config"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
-type Accounts struct {
+// Account model representing the customer is back account
+type Account struct {
 	gorm.Model
 	DocumentNumber string
-	Transactions   []Transactions `gorm:"foreignkey:AccountID"`
+	Transactions   []Transaction `gorm:"foreignkey:AccountID"`
 }
 
-type OperationsTypes struct {
+// OperationType model that represents the types of operations transacted in the account
+type OperationType struct {
 	gorm.Model
 	Description  string
-	Transactions []Transactions `gorm:"foreignkey:OperationsTypeID"`
+	Transactions []Transaction `gorm:"foreignkey:OperationTypeID"`
 }
 
-type Transactions struct {
+// Transaction model that represents each transaction executed in the account
+type Transaction struct {
 	gorm.Model
-	AccountID        uint
-	OperationsTypeID uint
-	Description      string
-	Amount           uint
-	EventDate        time.Time
+	AccountID       uint
+	OperationTypeID uint
+	Description     string
+	Amount          uint
+	EventDate       time.Time
 }
 
 func createAccountHandler(w http.ResponseWriter, r *http.Request) {
@@ -49,13 +53,16 @@ func createTransactionHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	db, err := gorm.Open("postgres", "host=db port=5432 user=postgres dbname=transaction password=postgres sslmode=disable")
+	cfg := config.MustReadFromEnv()
+
+	dbCfg := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable", cfg.DbHost, cfg.DbPort, cfg.DbUser, cfg.DbBase, cfg.DbPass)
+	db, err := gorm.Open("postgres", dbCfg)
 	if err != nil {
 		panic(err)
 	}
 	defer db.Close()
 
-	db.AutoMigrate(&Accounts{}, &OperationsTypes{}, &Transactions{})
+	db.AutoMigrate(&Account{}, &OperationType{}, &Transaction{})
 
 	r := mux.NewRouter()
 	r.HandleFunc("/accounts", createAccountHandler).Methods("POST")
@@ -64,7 +71,7 @@ func main() {
 
 	srv := &http.Server{
 		Handler:      r,
-		Addr:         ":8080",
+		Addr:         fmt.Sprintf(":%s", cfg.Port),
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}

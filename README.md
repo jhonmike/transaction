@@ -33,6 +33,11 @@ go mod download
 go run main.go
 ```
 
+> Nota
+>
+> Algumas variaveis de ambiente são necessarias para rodar o app, Ex:
+> PORT: "8080", DB_HOST: "db", DB_PORT: "5432", DB_USER: "postgres", DB_PASS: "postgres", DB_BASE: "transaction"
+
 ## Rodando os Testes
 
 Necessário possuir o GoLang configurado em sua máquina.
