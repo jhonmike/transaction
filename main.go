@@ -9,24 +9,17 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/jhonmike/transaction/account"
 	"github.com/jhonmike/transaction/config"
-	"github.com/jinzhu/gorm"
+	"github.com/jhonmike/transaction/model"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
 func main() {
 	cfg := config.MustReadFromEnv()
 
-	dbCfg := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable", cfg.DbHost, cfg.DbPort, cfg.DbUser, cfg.DbBase, cfg.DbPass)
-	db, err := gorm.Open("postgres", dbCfg)
-	if err != nil {
-		panic(err)
-	}
-	defer db.Close()
-
-	db.AutoMigrate(&account.Account{}, &account.OperationType{}, &account.Transaction{})
+	db := model.NewDatabase(cfg.DbHost, cfg.DbPort, cfg.DbUser, cfg.DbPass, cfg.DbBase)
 
 	r := mux.NewRouter()
-	account.MakeAccountHandlers(r)
+	account.MakeAccountHandlers(r, db)
 
 	srv := &http.Server{
 		Handler:      r,

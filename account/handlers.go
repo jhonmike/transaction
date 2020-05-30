@@ -1,47 +1,42 @@
 package account
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/jhonmike/transaction/commons"
+	"github.com/jhonmike/transaction/model"
 	"github.com/jinzhu/gorm"
 )
 
-// Account model representing the customer is back account
-type Account struct {
-	gorm.Model
-	DocumentNumber string
-	Transactions   []Transaction `gorm:"foreignkey:AccountID"`
+func createAccountHandler(db *gorm.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var account model.Account
+		if err := json.NewDecoder(r.Body).Decode(&account); err != nil {
+			commons.RespondError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		db.Create(&account)
+
+		commons.RespondJSON(w, http.StatusCreated, account)
+	}
 }
 
-// OperationType model that represents the types of operations transacted in the account
-type OperationType struct {
-	gorm.Model
-	Description  string
-	Transactions []Transaction `gorm:"foreignkey:OperationTypeID"`
-}
+func getAccountHandler(db *gorm.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
 
-// Transaction model that represents each transaction executed in the account
-type Transaction struct {
-	gorm.Model
-	AccountID       uint
-	OperationTypeID uint
-	Description     string
-	Amount          uint
-	EventDate       time.Time
-}
+		var account model.Account
+		if err := db.First(&account, model.Account{DocumentNumber: vars["accountID"]}).Error; err != nil {
+			commons.RespondError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
 
-func createAccountHandler(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, `{ "document_number": "12345678900" }`)
-}
-
-func getAccountHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, `{ "account_id": "%v", "document_number": "12345678900" }`, vars["accountID"])
+		commons.RespondJSON(w, http.StatusOK, account)
+	}
 }
 
 func createTransactionHandler(w http.ResponseWriter, r *http.Request) {
@@ -50,8 +45,8 @@ func createTransactionHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // MakeAccountHandlers Adds the account module handlers to their endpoints
-func MakeAccountHandlers(r *mux.Router) {
-	r.HandleFunc("/accounts", createAccountHandler).Methods("POST")
-	r.HandleFunc("/accounts/{accountID}", getAccountHandler).Methods("GET")
+func MakeAccountHandlers(r *mux.Router, db *gorm.DB) {
+	r.HandleFunc("/accounts", createAccountHandler(db)).Methods("POST")
+	r.HandleFunc("/accounts/{accountID}", getAccountHandler(db)).Methods("GET")
 	r.HandleFunc("/transactions", createTransactionHandler).Methods("POST")
 }
