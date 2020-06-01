@@ -12,7 +12,7 @@ type Account struct {
 	CreatedAt      time.Time     `json:"created_at"`
 	UpdatedAt      time.Time     `json:"updated_at"`
 	DeletedAt      *time.Time    `sql:"index" json:"deleted_at"`
-	DocumentNumber string        `json:"document_number"`
+	DocumentNumber string        `gorm:"unique;not null" json:"document_number"`
 	Transactions   []Transaction `gorm:"foreignkey:AccountID" json:"_"`
 }
 

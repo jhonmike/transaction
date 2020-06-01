@@ -10,11 +10,36 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+const messageDocumentNumberIsNil = "To create a account you need your document number"
+
+// AccountValidate valid with error messages the struct
+type AccountValidate struct {
+	Error map[string]string `json:"error"`
+}
+
+func (t *AccountValidate) isValid(account model.Account) bool {
+	t.Error = make(map[string]string)
+	isValid := true
+
+	if account.DocumentNumber == "" {
+		isValid = false
+		t.Error["document_number"] = "To create a account you need your document number"
+	}
+
+	return isValid
+}
+
 func createAccountHandler(accountResource model.AccountResource) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var account model.Account
 		if err := json.NewDecoder(r.Body).Decode(&account); err != nil {
 			commons.RespondError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		validate := AccountValidate{}
+		if !validate.isValid(account) {
+			commons.RespondJSON(w, http.StatusBadRequest, validate)
 			return
 		}
 

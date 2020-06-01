@@ -60,6 +60,27 @@ func TestCreateAccountHandler(t *testing.T) {
 	accountResource.AssertExpectations(t)
 }
 
+func TestCreateACcountHandlerWithoutDocumentNumber(t *testing.T) {
+	rjson, _ := json.Marshal(model.Account{
+		DocumentNumber: "",
+	})
+	req, err := http.NewRequest("POST", "/accounts", strings.NewReader(string(rjson)))
+	if err != nil {
+		t.Fatal(err)
+	}
+	rr := httptest.NewRecorder()
+
+	accountResource := new(mockAccountResource)
+	handler := http.HandlerFunc(createAccountHandler(accountResource))
+	handler.ServeHTTP(rr, req)
+
+	var messageError AccountValidate
+	json.NewDecoder(rr.Body).Decode(&messageError)
+	assert.Equal(t, "To create a account you need your document number", messageError.Error["document_number"], "return error message")
+	assert.Equal(t, http.StatusBadRequest, rr.Code, "should return status 400")
+	accountResource.AssertExpectations(t)
+}
+
 func TestGetAccountHandler(t *testing.T) {
 	spyAccount := model.Account{
 		ID:             999,

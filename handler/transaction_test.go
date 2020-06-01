@@ -66,7 +66,6 @@ func TestCreateTransactionHandler(t *testing.T) {
 		}, nil)
 
 	handler := http.HandlerFunc(createTransactionHandler(transactionResource, operationTypeResource))
-
 	handler.ServeHTTP(rr, req)
 
 	var transaction model.Transaction
@@ -76,4 +75,30 @@ func TestCreateTransactionHandler(t *testing.T) {
 	assert.Equal(t, spyTransaction.Description, transaction.Description, "return new transaction with description value")
 	assert.Equal(t, spyTransaction.Amount, transaction.Amount, "return new transaction with amount value")
 	assert.Equal(t, http.StatusCreated, rr.Code, "should return status 201")
+}
+
+func TestCreateTransactionHandlerInvalid(t *testing.T) {
+	rjson, _ := json.Marshal(model.Transaction{
+		AccountID:       0,
+		OperationTypeID: 0,
+		Amount:          -1,
+	})
+	req, err := http.NewRequest("POST", "/transactions", strings.NewReader(string(rjson)))
+	if err != nil {
+		t.Fatal(err)
+	}
+	rr := httptest.NewRecorder()
+
+	transactionResource := new(mockTransactionResource)
+	operationTypeResource := new(mockOperationTypeResource)
+
+	handler := http.HandlerFunc(createTransactionHandler(transactionResource, operationTypeResource))
+	handler.ServeHTTP(rr, req)
+
+	var messageError TransactionValidate
+	json.NewDecoder(rr.Body).Decode(&messageError)
+	assert.Equal(t, "To create a transaction you need the accountID", messageError.Error["account_id"], "return error message account id")
+	assert.Equal(t, "To create a transaction you need the Operation Type ID", messageError.Error["operation_type_id"], "return error message operation type id")
+	assert.Equal(t, "To create a transaction you need the amount to be greater than zero", messageError.Error["amount"], "return error message amount")
+	assert.Equal(t, http.StatusBadRequest, rr.Code, "should return status 400")
 }

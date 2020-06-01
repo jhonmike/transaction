@@ -1,13 +1,5 @@
 # Projeto Transactions
 
-## Tópicos Chave
-
-- Conta com dados do cartão relacionado ao cliente
-- Cada transação fica salvo o evento
-- Tipos de transação (Compra a vista, compra parcelada, saque ou pagamento)
-- Estrutura da transação (Tipo, Valor e Data de criação)
-- Compras e saques tem valor negativo e pagamentos tem o valor positivo
-
 ## Executando Local com Docker
 
 Execute o comando abaixo para subir com docker o projeto, ira disponibilizar uma API na porta :8080.
@@ -36,7 +28,7 @@ go run main.go
 > Nota
 >
 > Algumas variaveis de ambiente são necessarias para rodar o app, Ex:
-> PORT: "8080", DB_HOST: "db", DB_PORT: "5432", DB_USER: "postgres", DB_PASS: "postgres", DB_BASE: "transaction"
+> PORT="8080" DB_HOST="db" DB_PORT="5432" DB_USER="postgres" DB_PASS="postgres" DB_BASE="transaction" go run main.go
 
 ## Rodando os Testes
 
