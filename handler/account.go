@@ -1,8 +1,7 @@
-package account
+package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -11,7 +10,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-func createAccountHandler(db *gorm.DB) http.HandlerFunc {
+func createAccountHandler(accountResource model.AccountResource) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var account model.Account
 		if err := json.NewDecoder(r.Body).Decode(&account); err != nil {
@@ -19,18 +18,23 @@ func createAccountHandler(db *gorm.DB) http.HandlerFunc {
 			return
 		}
 
-		db.Create(&account)
+		account, err := accountResource.CreateAccount(account)
+		if err != nil {
+			commons.RespondError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
 
 		commons.RespondJSON(w, http.StatusCreated, account)
 	}
 }
 
-func getAccountHandler(db *gorm.DB) http.HandlerFunc {
+func getAccountHandler(accountResource model.AccountResource) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 
-		var account model.Account
-		if err := db.First(&account, model.Account{DocumentNumber: vars["accountID"]}).Error; err != nil {
+		accountID := vars["accountID"]
+		account, err := accountResource.GetAccountByID(model.Account{}, accountID)
+		if err != nil {
 			commons.RespondError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
@@ -39,14 +43,10 @@ func getAccountHandler(db *gorm.DB) http.HandlerFunc {
 	}
 }
 
-func createTransactionHandler(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, `{ "account_id": "1", "operation_type_id": "4", "amount": "123.45" }`)
-}
-
 // MakeAccountHandlers Adds the account module handlers to their endpoints
 func MakeAccountHandlers(r *mux.Router, db *gorm.DB) {
-	r.HandleFunc("/accounts", createAccountHandler(db)).Methods("POST")
-	r.HandleFunc("/accounts/{accountID}", getAccountHandler(db)).Methods("GET")
-	r.HandleFunc("/transactions", createTransactionHandler).Methods("POST")
+	accountResource := model.NewAccountResource(db)
+
+	r.HandleFunc("/accounts", createAccountHandler(accountResource)).Methods("POST")
+	r.HandleFunc("/accounts/{accountID}", getAccountHandler(accountResource)).Methods("GET")
 }
