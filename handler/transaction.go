@@ -24,7 +24,7 @@ func createTransactionHandler(transactionResource model.TransactionResource, ope
 			return
 		}
 
-		if operationType.Description != model.Pagamento {
+		if operationType.Description != model.Payment {
 			transaction.Amount = -transaction.Amount
 		}
 
@@ -38,7 +38,7 @@ func createTransactionHandler(transactionResource model.TransactionResource, ope
 	}
 }
 
-// MakeTransactionHandlers Adds the account module handlers to their endpoints
+// MakeTransactionHandlers Adds the transaction handlers to their endpoints
 func MakeTransactionHandlers(r *mux.Router, db *gorm.DB) {
 	transactionResource := model.NewTransactionResource(db)
 	operationTypeResource := model.NewOperationTypeResource(db)

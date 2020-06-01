@@ -43,7 +43,7 @@ func getAccountHandler(accountResource model.AccountResource) http.HandlerFunc {
 	}
 }
 
-// MakeAccountHandlers Adds the account module handlers to their endpoints
+// MakeAccountHandlers Adds the account handlers to their endpoints
 func MakeAccountHandlers(r *mux.Router, db *gorm.DB) {
 	accountResource := model.NewAccountResource(db)
 

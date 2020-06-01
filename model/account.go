@@ -16,7 +16,7 @@ type Account struct {
 	Transactions   []Transaction `gorm:"foreignkey:AccountID" json:"_"`
 }
 
-// AccountResource ...
+// AccountResource interface
 type AccountResource interface {
 	CreateAccount(account Account) (Account, error)
 	GetAccountByID(account Account, ID interface{}) (Account, error)
@@ -26,7 +26,7 @@ type accountResource struct {
 	db *gorm.DB
 }
 
-// NewAccountResource ...
+// NewAccountResource created new instance of the Account model manipulation resource
 func NewAccountResource(db *gorm.DB) AccountResource {
 	return accountResource{db}
 }

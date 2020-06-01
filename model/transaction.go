@@ -19,7 +19,7 @@ type Transaction struct {
 	EventDate       time.Time  `json:"event_date"`
 }
 
-// TransactionResource ...
+// TransactionResource interface
 type TransactionResource interface {
 	CreateTransaction(transaction Transaction) (Transaction, error)
 }
@@ -28,7 +28,7 @@ type transactionResource struct {
 	db *gorm.DB
 }
 
-// NewTransactionResource ...
+// NewTransactionResource created new instance of the Transaction model manipulation resource
 func NewTransactionResource(db *gorm.DB) TransactionResource {
 	return transactionResource{db}
 }

@@ -22,8 +22,8 @@ func NewDatabase(host string, port string, user string, pass string, base string
 func Migrates(db *gorm.DB) {
 	db.AutoMigrate(&Account{}, &OperationType{}, &Transaction{})
 
-	db.Create(&OperationType{Description: CompraAVista})
-	db.Create(&OperationType{Description: CompraParcelada})
-	db.Create(&OperationType{Description: Saque})
-	db.Create(&OperationType{Description: Pagamento})
+	db.Create(&OperationType{Description: CashPurchase})
+	db.Create(&OperationType{Description: InstallmentPurchase})
+	db.Create(&OperationType{Description: Withdraw})
+	db.Create(&OperationType{Description: Payment})
 }

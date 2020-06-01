@@ -62,7 +62,7 @@ func TestCreateTransactionHandler(t *testing.T) {
 	operationTypeResource.On("GetOperationTypeByID", mock.Anything).
 		Return(model.OperationType{
 			ID:          spyTransaction.OperationTypeID,
-			Description: model.CompraAVista,
+			Description: model.CashPurchase,
 		}, nil)
 
 	handler := http.HandlerFunc(createTransactionHandler(transactionResource, operationTypeResource))
