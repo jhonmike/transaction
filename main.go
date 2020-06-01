@@ -17,6 +17,8 @@ func main() {
 	cfg := config.MustReadFromEnv()
 
 	db := model.NewDatabase(cfg.DbHost, cfg.DbPort, cfg.DbUser, cfg.DbPass, cfg.DbBase)
+	defer db.Close()
+
 	model.Migrates(db)
 
 	r := mux.NewRouter()
